@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Productivity App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4ff;
+      margin: 0;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px #0001;
+    }
+
+    input, button {
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    input { width: 85%; }
+
+    button {
+      background: #5145cd;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+
+    li {
+      text-align: left;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Productivity App</h1>
+    <p>Organize your day, one task at a time.</p>
+
+    <form id="taskForm">
+      <input id="taskInput" type="text"
+        placeholder="Enter your task" required>
+      <br>
+      <button type="submit">Add Task</button>
+    </form>
+
+    <h2>My Tasks</h2>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    
+const form = document.getElementById("taskForm");
+const input = document.getElementById("taskInput");
+const list = document.getElementById("taskList");
+
+let tasks = JSON.parse(localStorage.getItem("myTasks")) || [];
+
+function saveTasks() {
+  localStorage.setItem("myTasks", JSON.stringify(tasks));
+}
+
+function renderTasks() {
+  list.innerHTML = "";
+
+  tasks.forEach((task, index) => {
+    const item = document.createElement("li");
+
+    const taskText = document.createElement("span");
+    taskText.textContent = task.text + " ";
+
+    if (task.completed) {
+      taskText.style.textDecoration = "line-through";
+    }
+
+    const completeButton = document.createElement("button");
+    completeButton.textContent = task.completed
+      ? "Completed"
+      : "Complete";
+    completeButton.type = "button";
+    completeButton.style.marginLeft = "8px";
+    completeButton.style.background = "#16a34a";
+
+    completeButton.addEventListener("click", () => {
+      tasks[index].completed = !tasks[index].completed;
+      saveTasks();
+      renderTasks();
+    });
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.type = "button";
+    deleteButton.style.marginLeft = "12px";
+    deleteButton.style.background = "#e53935";
+
+    deleteButton.addEventListener("click", () => {
+      tasks.splice(index, 1);
+      saveTasks();
+      renderTasks();
+    });
+
+    item.appendChild(taskText);
+    item.appendChild(completeButton);
+    item.appendChild(deleteButton);
+    list.appendChild(item);
+  });
+}
+
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  const task = input.value.trim();
+  if (!task) return;
+
+  tasks.push({
+    text: task,
+    completed: false
+  });
+
+  saveTasks();
+  renderTasks();
+  input.value = "";
+});
+
+renderTasks();
+
+
+    </script>
+</body>
+
+<section id="ai-assistant">
+  <h2>AI Productivity Assistant</h2>
+  <p>Ask AI to help you plan, learn, or complete a task.</p>
+
+  <textarea
+    id="aiPrompt"
+    placeholder="Example: Create a study plan for today..."
+    rows="4"
+  ></textarea>
+
+  <button id="askAI">Ask AI</button>
+  <button id="newChat" type="button">New Chat</button>
+
+  <p id="aiStatus"></p>
+  <div id="aiAnswer"></div>
+  <h3>Previous AI Conversations</h3>
+<ul id="chatHistory"></ul>
+<button id="clearHistory" type="button">Clear History</button>
+</section>
+
+<script>
+
+ 
+const askAIButton = document.getElementById("askAI");
+const aiPrompt = document.getElementById("aiPrompt");
+const aiStatus = document.getElementById("aiStatus");
+const aiAnswer = document.getElementById("aiAnswer");
+
+const chatHistory = document.getElementById("chatHistory");
+const clearHistoryButton = document.getElementById("clearHistory");
+
+let conversations = JSON.parse(
+  localStorage.getItem("aiConversations") || "[]"
+);
+
+function saveConversations() {
+  localStorage.setItem(
+    "aiConversations",
+    JSON.stringify(conversations)
+  );
+}
+
+function displayHistory() {
+
+  chatHistory.replaceChildren();
+
+  conversations.forEach((conversation) => {
+    const item = document.createElement("li");
+
+    const question = document.createElement("p");
+    question.textContent = "You: " + conversation.prompt;
+    question.style.cursor = "pointer";
+question.title = "Click to reuse this question";
+
+question.addEventListener("click", () => {
+  aiPrompt.value = conversation.prompt;
+  aiAnswer.textContent = conversation.answer;
+  aiStatus.textContent = "Previous conversation loaded.";
+});
+
+    const answer = document.createElement("p");
+    answer.textContent = "AI: " + conversation.answer;
+
+    item.append(question, answer);
+    chatHistory.appendChild(item);
+  });
+}
+
+askAIButton.addEventListener("click", async () => {
+  const prompt = aiPrompt.value.trim();
+
+  if (!prompt) {
+    aiStatus.textContent = "Please enter a question.";
+    return;
+  }
+
+  askAIButton.disabled = true;
+  aiStatus.textContent = "AI is thinking...";
+  aiAnswer.textContent = "";
+
+  try {
+    const response = await fetch("/api/ai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        typeof data.error === "string"
+          ? data.error
+          : "AI request failed."
+      );
+    }
+
+    const answer = data.answer || "No answer received.";
+
+    aiAnswer.textContent = answer;
+    aiStatus.textContent = "AI response received!";
+
+    conversations.unshift({ prompt, answer });
+
+    // Keep the latest 20 conversations.
+    conversations = conversations.slice(0, 20);
+
+    saveConversations();
+    displayHistory();
+
+  } catch (error) {
+    aiStatus.textContent = "Error: " + error.message;
+  } finally {
+    askAIButton.disabled = false;
+  }
+});
+
+
+clearHistoryButton.addEventListener("click", () => {
+  conversations = [];
+  saveConversations();
+  displayHistory();
+  
+const newChatButton = document.getElementById("newChat");
+
+newChatButton.addEventListener("click", () => {
+  aiPrompt.value = "";
+  aiAnswer.textContent = "";
+  aiStatus.textContent = "New chat started!";
+  aiPrompt.focus();
+});
+
+
+  aiStatus.textContent = "AI conversation history cleared!";
+});
+
+displayHistory();
+
+</script>
+</body>
+
+</html>
