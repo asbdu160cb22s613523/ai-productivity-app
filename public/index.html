@@ -2,208 +2,659 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Productivity App</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f4ff;
-      margin: 0;
-      padding: 40px 20px;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Productivity App</title>
 
-    .container {
-      max-width: 600px;
-      margin: auto;
-      padding: 30px;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 15px #0001;
-    }
-
-    input, button {
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    input { width: 85%; }
-
-    button {
-      background: #5145cd;
-      color: white;
-      cursor: pointer;
-      border: none;
-    }
-
-    li {
-      text-align: left;
-      padding: 8px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>AI Productivity App</h1>
-    <p>Organize your day, one task at a time.</p>
-
-    <form id="taskForm">
-      <input id="taskInput" type="text"
-        placeholder="Enter your task" required>
-      <br>
-      <button type="submit">Add Task</button>
-    </form>
-
-    <h2>My Tasks</h2>
-    <ul id="taskList"></ul>
-  </div>
-
-  <script>
-    
-const form = document.getElementById("taskForm");
-const input = document.getElementById("taskInput");
-const list = document.getElementById("taskList");
-
-let tasks = JSON.parse(localStorage.getItem("myTasks")) || [];
-
-function saveTasks() {
-  localStorage.setItem("myTasks", JSON.stringify(tasks));
+<style>
+:root {
+  --purple: #7048e8;
+  --blue: #3984f7;
+  --pink: #ef68ad;
+  --green: #13ad85;
+  --bg: #f5f4ff;
+  --text: #29264b;
+  --muted: #777791;
 }
 
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, #f5f1ff, #edf6ff, #fff1f8);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+button, input, textarea { font: inherit; }
+button { cursor: pointer; transition: .2s; }
+button:hover { transform: translateY(-2px); filter: brightness(.97); }
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 6%;
+  background: #ffffffd9;
+  border-bottom: 1px solid #e8e3ff;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.logo {
+  background: linear-gradient(135deg, #7548f4, #3984f7);
+  color: white;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  box-shadow: 0 5px 15px #7048e844;
+  font-size: 24px;
+}
+
+.online {
+  color: #07966d;
+  background: #e0fff3;
+  border-radius: 30px;
+  padding: 9px 15px;
+  font-size: 13px;
+}
+
+.container {
+  max-width: 1250px;
+  margin: auto;
+  padding: 30px 22px;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 38px;
+  border-radius: 25px;
+  color: white;
+  background: linear-gradient(115deg, #6538df, #397ff5 65%, #46b9f0);
+  box-shadow: 0 14px 35px #6146e52b;
+  margin-bottom: 26px;
+}
+
+.hero:after {
+  content: "✦  ✧  ✨";
+  position: absolute;
+  right: 35px;
+  top: 30px;
+  font-size: 50px;
+  opacity: .35;
+}
+
+.hero-tag {
+  display: inline-block;
+  background: #ffffff27;
+  padding: 8px 13px;
+  border-radius: 30px;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.hero h1 {
+  font-size: clamp(28px, 4vw, 40px);
+  margin: 0 0 12px;
+  letter-spacing: -1px;
+}
+
+.hero p {
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0;
+  color: #f1efff;
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 23px;
+}
+
+.stat {
+  padding: 12px 17px;
+  border: 1px solid #ffffff40;
+  background: #ffffff1b;
+  border-radius: 13px;
+  font-size: 13px;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: .9fr 1.2fr;
+  gap: 23px;
+  align-items: start;
+}
+
+.card {
+  background: #ffffffed;
+  padding: 25px;
+  border-radius: 22px;
+  border: 1px solid #e7e4ff;
+  box-shadow: 0 9px 30px #34306c0b;
+  min-width: 0;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 8px;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 15px;
+  font-size: 23px;
+  flex-shrink: 0;
+}
+
+.purple { background: #eee7ff; color: #7548e8; }
+.blue { background: #e2f1ff; color: #3284f6; }
+.green { background: #ddfff2; color: #079b70; }
+.pink { background: #ffe6f2; color: #e14b98; }
+
+h2 { font-size: 20px; margin: 0; }
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 22px;
+}
+
+.task-form {
+  display: flex;
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #dfdef3;
+  border-radius: 12px;
+  outline: none;
+  background: #fbfaff;
+  color: var(--text);
+}
+
+input:focus, textarea:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px #7048e81c;
+}
+
+.primary {
+  background: linear-gradient(120deg, #7548ed, #4e72f5);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 17px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 5px 12px #7048e825;
+}
+
+.secondary {
+  border: 1px solid #dcd7fa;
+  background: #f8f6ff;
+  color: #6448c9;
+  border-radius: 12px;
+  padding: 11px 15px;
+  font-weight: 600;
+}
+
+.task-info {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 10px 0;
+}
+
+#taskCount { color: var(--purple); font-weight: 700; }
+
+.task-list, .history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 10px;
+  margin-top: 9px;
+  border: 1px solid #ebe9fa;
+  border-radius: 13px;
+  background: linear-gradient(110deg, #fff, #fbfaff);
+}
+
+.task-item input[type="checkbox"] {
+  width: 19px;
+  height: 19px;
+  accent-color: var(--green);
+  flex-shrink: 0;
+}
+
+.task-text {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.task-text.completed {
+  text-decoration: line-through;
+  color: #9999ae;
+}
+
+.delete-task {
+  border: none;
+  background: #fff0f2;
+  color: #e34d62;
+  padding: 8px 10px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.empty {
+  text-align: center;
+  color: #8888a3;
+  padding: 25px 8px;
+  line-height: 1.8;
+  font-size: 13px;
+}
+
+label {
+  display: block;
+  font-weight: 650;
+  font-size: 13px;
+  margin-bottom: 9px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 125px;
+  line-height: 1.7;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 13px 0 18px;
+}
+
+.suggestion {
+  border: 1px solid #e5dfff;
+  color: #7048d8;
+  background: #f2edff;
+  padding: 9px 12px;
+  border-radius: 30px;
+  font-size: 12px;
+}
+
+.suggestion:nth-child(2) {
+  color: #078966;
+  background: #e5fff5;
+  border-color: #c9f6e7;
+}
+
+.suggestion:nth-child(3) {
+  color: #dc5580;
+  background: #fff0f5;
+  border-color: #ffdfeb;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 17px 0 0;
+}
+
+.status.error { color: #d93650; }
+
+.answer {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+  font-size: 14px;
+  background: linear-gradient(135deg, #f2efff, #eff7ff);
+  border: 1px solid #e4e4ff;
+  border-radius: 14px;
+  padding: 17px;
+  margin-top: 14px;
+}
+
+.answer:empty { display: none; }
+
+.history {
+  border-top: 1px solid #eceafa;
+  margin-top: 26px;
+  padding-top: 22px;
+}
+
+.history-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 13px;
+}
+
+.history-heading h3 { font-size: 15px; margin: 0; }
+
+.clear {
+  border: 1px solid #ffd9e0;
+  background: #fff0f3;
+  color: #db4760;
+  padding: 8px 11px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.history-item {
+  border: 1px solid #eceafa;
+  padding: 13px;
+  border-radius: 12px;
+  margin-top: 9px;
+}
+
+.history-question {
+  color: #6547d5;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.6;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.history-question:hover { text-decoration: underline; }
+
+.history-answer {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+
+footer {
+  text-align: center;
+  padding: 26px 10px 5px;
+  font-size: 12px;
+  color: #8885a8;
+}
+
+@media (max-width: 850px) {
+  .dashboard { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 500px) {
+  header { padding: 14px; }
+  .brand { font-size: 16px; }
+  .container { padding: 20px 12px; }
+  .hero { padding: 25px 21px; }
+  .hero:after { right: 12px; top: 10px; font-size: 28px; }
+  .card { padding: 18px; }
+  .task-form { flex-direction: column; }
+  .task-form button { width: 100%; }
+  .online { font-size: 11px; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">✦</div>
+    <div>
+      <div>AI Productivity</div>
+      <div style="font-size:11px;color:#8885a8;font-weight:400">
+        Plan Smarter. Do More.
+      </div>
+    </div>
+  </div>
+  <div class="online">● Workspace Ready</div>
+</header>
+
+<main class="container">
+
+  <section class="hero">
+    <span class="hero-tag">✦ YOUR AI-POWERED WORKSPACE</span>
+    <h1>Make today more productive.</h1>
+    <p>
+      Organize your tasks, build better habits, and turn your ideas
+      into action with your personal AI assistant.
+    </p>
+    <div class="hero-stats">
+      <div class="stat">✓ Get Things Done</div>
+      <div class="stat">✧ Learn Faster</div>
+      <div class="stat">↗ Be More Productive</div>
+    </div>
+  </section>
+
+  <div class="dashboard">
+
+    <section class="card">
+      <div class="card-title">
+        <div class="icon purple">✓</div>
+        <h2>My Tasks</h2>
+      </div>
+      <p class="subtitle">Small steps every day lead to big achievements.</p>
+
+      <form id="taskForm" class="task-form">
+        <input id="taskInput" placeholder="✎  What do you need to do?"
+               maxlength="200" required>
+        <button class="primary" type="submit">＋ Add</button>
+      </form>
+
+      <div class="task-info">
+        <span>Your to-do list</span>
+        <span id="taskCount">0 tasks left</span>
+      </div>
+
+      <ul id="taskList" class="task-list"></ul>
+    </section>
+
+    <section class="card">
+      <div class="card-title">
+        <div class="icon blue">✧</div>
+        <h2>AI Productivity Assistant</h2>
+      </div>
+      <p class="subtitle">Your ideas in. A smarter plan out.</p>
+
+      <label for="aiPrompt">What can I help you with today?</label>
+      <textarea id="aiPrompt" maxlength="5000"
+        placeholder="Example: Create a study plan for today..."></textarea>
+
+      <div class="suggestions">
+        <button class="suggestion" data-prompt="Create a productive daily schedule for me." type="button">✦ Daily plan</button>
+        <button class="suggestion" data-prompt="Give me practical tips to improve my focus." type="button">◎ Improve focus</button>
+        <button class="suggestion" data-prompt="Break a large task into small actionable steps." type="button">↗ Break down a task</button>
+      </div>
+
+      <div class="actions">
+        <button id="askAI" class="primary" type="button">✦ Ask AI</button>
+        <button id="newChat" class="secondary" type="button">＋ New Chat</button>
+      </div>
+
+      <p id="aiStatus" class="status" role="status" aria-live="polite"></p>
+      <div id="aiAnswer" class="answer"></div>
+
+      <section class="history">
+        <div class="history-heading">
+          <h3>☷ Previous Conversations</h3>
+          <button id="clearHistory" class="clear" type="button">♲ Clear History</button>
+        </div>
+        <ul id="chatHistory" class="history-list"></ul>
+      </section>
+    </section>
+
+  </div>
+
+  <footer>✦ AI Productivity Assistant · Plan smarter. Do more. Grow every day.</footer>
+</main>
+
+<script>
+function loadStorage(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function saveStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    console.warn("Unable to save browser data.");
+  }
+}
+
+const taskForm = document.getElementById("taskForm");
+const taskInput = document.getElementById("taskInput");
+const taskList = document.getElementById("taskList");
+const taskCount = document.getElementById("taskCount");
+
+let tasks = loadStorage("myTasks", []);
+
 function renderTasks() {
-  list.innerHTML = "";
+  taskList.replaceChildren();
+
+  const remaining = tasks.filter(t => !t.completed).length;
+  taskCount.textContent = `${remaining} task${remaining === 1 ? "" : "s"} left`;
+
+  if (!tasks.length) {
+    const empty = document.createElement("li");
+    empty.className = "empty";
+    empty.textContent = "📝 Your task list is empty. Add your first task!";
+    taskList.appendChild(empty);
+    return;
+  }
 
   tasks.forEach((task, index) => {
     const item = document.createElement("li");
+    item.className = "task-item";
 
-    const taskText = document.createElement("span");
-    taskText.textContent = task.text + " ";
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.checked = task.completed;
+    check.setAttribute("aria-label", "Complete task");
 
-    if (task.completed) {
-      taskText.style.textDecoration = "line-through";
-    }
-
-    const completeButton = document.createElement("button");
-    completeButton.textContent = task.completed
-      ? "Completed"
-      : "Complete";
-    completeButton.type = "button";
-    completeButton.style.marginLeft = "8px";
-    completeButton.style.background = "#16a34a";
-
-    completeButton.addEventListener("click", () => {
-      tasks[index].completed = !tasks[index].completed;
-      saveTasks();
+    check.addEventListener("change", () => {
+      tasks[index].completed = check.checked;
+      saveStorage("myTasks", tasks);
       renderTasks();
     });
 
-    const deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-    deleteButton.type = "button";
-    deleteButton.style.marginLeft = "12px";
-    deleteButton.style.background = "#e53935";
+    const text = document.createElement("span");
+    text.className = "task-text" + (task.completed ? " completed" : "");
+    text.textContent = task.text;
 
-    deleteButton.addEventListener("click", () => {
+    const del = document.createElement("button");
+    del.className = "delete-task";
+    del.type = "button";
+    del.textContent = "Delete";
+
+    del.addEventListener("click", () => {
       tasks.splice(index, 1);
-      saveTasks();
+      saveStorage("myTasks", tasks);
       renderTasks();
     });
 
-    item.appendChild(taskText);
-    item.appendChild(completeButton);
-    item.appendChild(deleteButton);
-    list.appendChild(item);
+    item.append(check, text, del);
+    taskList.appendChild(item);
   });
 }
 
-form.addEventListener("submit", function(event) {
+taskForm.addEventListener("submit", event => {
   event.preventDefault();
+  const text = taskInput.value.trim();
+  if (!text) return;
 
-  const task = input.value.trim();
-  if (!task) return;
-
-  tasks.push({
-    text: task,
-    completed: false
-  });
-
-  saveTasks();
+  tasks.push({ text, completed: false });
+  saveStorage("myTasks", tasks);
   renderTasks();
-  input.value = "";
+  taskInput.value = "";
+  taskInput.focus();
 });
 
-renderTasks();
-
-
-    </script>
-</body>
-
-<section id="ai-assistant">
-  <h2>AI Productivity Assistant</h2>
-  <p>Ask AI to help you plan, learn, or complete a task.</p>
-
-  <textarea
-    id="aiPrompt"
-    placeholder="Example: Create a study plan for today..."
-    rows="4"
-  ></textarea>
-
-  <button id="askAI">Ask AI</button>
-  <button id="newChat" type="button">New Chat</button>
-
-  <p id="aiStatus"></p>
-  <div id="aiAnswer"></div>
-  <h3>Previous AI Conversations</h3>
-<ul id="chatHistory"></ul>
-<button id="clearHistory" type="button">Clear History</button>
-</section>
-
-<script>
-
- 
 const askAIButton = document.getElementById("askAI");
 const aiPrompt = document.getElementById("aiPrompt");
 const aiStatus = document.getElementById("aiStatus");
 const aiAnswer = document.getElementById("aiAnswer");
-
 const chatHistory = document.getElementById("chatHistory");
-const clearHistoryButton = document.getElementById("clearHistory");
 
-let conversations = JSON.parse(
-  localStorage.getItem("aiConversations") || "[]"
-);
-
-function saveConversations() {
-  localStorage.setItem(
-    "aiConversations",
-    JSON.stringify(conversations)
-  );
-}
+let conversations = loadStorage("aiConversations", []);
 
 function displayHistory() {
-
   chatHistory.replaceChildren();
 
-  conversations.forEach((conversation) => {
+  if (!conversations.length) {
+    const empty = document.createElement("li");
+    empty.className = "empty";
+    empty.textContent = "Your saved AI conversations will appear here.";
+    chatHistory.appendChild(empty);
+    return;
+  }
+
+  conversations.forEach(conversation => {
     const item = document.createElement("li");
+    item.className = "history-item";
 
-    const question = document.createElement("p");
+    const question = document.createElement("div");
+    question.className = "history-question";
     question.textContent = "You: " + conversation.prompt;
-    question.style.cursor = "pointer";
-question.title = "Click to reuse this question";
+    question.tabIndex = 0;
+    question.setAttribute("role", "button");
 
-question.addEventListener("click", () => {
-  aiPrompt.value = conversation.prompt;
-  aiAnswer.textContent = conversation.answer;
-  aiStatus.textContent = "Previous conversation loaded.";
-});
+    function reuse() {
+      aiPrompt.value = conversation.prompt;
+      aiAnswer.textContent = conversation.answer;
+      aiStatus.textContent = "Previous conversation loaded.";
+      aiStatus.classList.remove("error");
+    }
+
+    question.addEventListener("click", reuse);
+    question.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        reuse();
+      }
+    });
 
     const answer = document.createElement("p");
-    answer.textContent = "AI: " + conversation.answer;
+    answer.className = "history-answer";
+    answer.textContent = "AI: " + conversation.answer.slice(0, 140) +
+      (conversation.answer.length > 140 ? "..." : "");
 
     item.append(question, answer);
     chatHistory.appendChild(item);
@@ -214,75 +665,88 @@ askAIButton.addEventListener("click", async () => {
   const prompt = aiPrompt.value.trim();
 
   if (!prompt) {
-    aiStatus.textContent = "Please enter a question.";
+    aiStatus.textContent = "Please enter a question first.";
+    aiStatus.classList.remove("error");
+    aiPrompt.focus();
     return;
   }
 
   askAIButton.disabled = true;
-  aiStatus.textContent = "AI is thinking...";
+  aiStatus.classList.remove("error");
+  aiStatus.textContent = "✦ AI is thinking...";
   aiAnswer.textContent = "";
 
   try {
     const response = await fetch("/api/ai", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt })
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        typeof data.error === "string"
-          ? data.error
-          : "AI request failed."
-      );
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("The server returned an invalid response.");
     }
 
-    const answer = data.answer || "No answer received.";
+    if (!response.ok) {
+      throw new Error(typeof data.error === "string"
+        ? data.error : "AI request failed.");
+    }
+
+    const answer = typeof data.answer === "string"
+      ? data.answer : "No answer received.";
 
     aiAnswer.textContent = answer;
-    aiStatus.textContent = "AI response received!";
+    aiStatus.textContent = "✓ AI response received!";
 
     conversations.unshift({ prompt, answer });
-
-    // Keep the latest 20 conversations.
     conversations = conversations.slice(0, 20);
-
-    saveConversations();
+    saveStorage("aiConversations", conversations);
     displayHistory();
 
   } catch (error) {
+    aiStatus.classList.add("error");
     aiStatus.textContent = "Error: " + error.message;
   } finally {
     askAIButton.disabled = false;
   }
 });
 
-
-clearHistoryButton.addEventListener("click", () => {
-  conversations = [];
-  saveConversations();
-  displayHistory();
-  
-const newChatButton = document.getElementById("newChat");
-
-newChatButton.addEventListener("click", () => {
+document.getElementById("newChat").addEventListener("click", () => {
   aiPrompt.value = "";
   aiAnswer.textContent = "";
-  aiStatus.textContent = "New chat started!";
+  aiStatus.textContent = "New chat started! What would you like to do?";
+  aiStatus.classList.remove("error");
   aiPrompt.focus();
 });
 
+document.getElementById("clearHistory").addEventListener("click", () => {
+  if (!conversations.length) {
+    aiStatus.textContent = "Your conversation history is already empty.";
+    return;
+  }
 
-  aiStatus.textContent = "AI conversation history cleared!";
+  if (!confirm("Delete all saved AI conversations?")) return;
+
+  conversations = [];
+  saveStorage("aiConversations", conversations);
+  displayHistory();
+  aiAnswer.textContent = "";
+  aiStatus.textContent = "Conversation history cleared.";
+  aiStatus.classList.remove("error");
 });
 
-displayHistory();
+document.querySelectorAll(".suggestion").forEach(button => {
+  button.addEventListener("click", () => {
+    aiPrompt.value = button.dataset.prompt;
+    aiPrompt.focus();
+  });
+});
 
+renderTasks();
+displayHistory();
 </script>
 </body>
-
 </html>
